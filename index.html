@@ -11485,6 +11485,9 @@ showMoreDetails?.addEventListener("click", () => {
       <button type="button" class="product-nav-action" id="utilityWishlist" aria-label="Wishlist">
         <span class="css-heart" aria-hidden="true"></span>
       </button>
+      <button type="button" class="mobile-wishlist-option" id="mobileUtilityWishlist" aria-label="Wishlist">
+        <span aria-hidden="true">♡</span>
+      </button>
       <button type="button" class="product-nav-action" id="utilityBag" aria-label="Bag">
         <span class="css-bag" aria-hidden="true"></span>
       </button>
@@ -11780,6 +11783,7 @@ showMoreDetails?.addEventListener("click", () => {
        Do not bind another listener here; openOverlay() runs repeatedly and
        duplicate listeners were causing utility-page navigation to fire twice. */
     document.getElementById('utilityWishlist')?.addEventListener('click',()=>document.getElementById('wishlistButton')?.click(),{once:true});
+    document.getElementById('mobileUtilityWishlist')?.addEventListener('click',()=>document.getElementById('wishlistButton')?.click(),{once:true});
     document.getElementById('utilityBag')?.addEventListener('click',()=>document.getElementById('bagButton')?.click(),{once:true});
     document.getElementById('simpleOverlayLogo')?.addEventListener('click',e=>{e.preventDefault();closeOverlay();window.location.hash='home';},{once:true});
     document.querySelectorAll('.newsprint-rating-buttons button, .review-rating-row button').forEach(btn=>btn.addEventListener('click',()=>{const row=btn.closest('.newsprint-rating-buttons, .review-rating-row'); if(!row) return; row.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',Number(b.dataset.rate)<=Number(btn.dataset.rate)));}));
@@ -12661,6 +12665,45 @@ showMoreDetails?.addEventListener("click", () => {
 /* Legacy duplicate menu handler intentionally disabled.
    FINAL-MENU-NAVIGATION-FIX-V3 is the single navigation controller. */
 </script>
+
+<style id="mobile-wishlist-option-fix">
+/* Mobile-only clean wishlist heart for FAQ / Contact / Review / Login pages */
+.mobile-wishlist-option{
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:30px !important;
+  min-width:30px !important;
+  height:30px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  background:transparent !important;
+  color:var(--cream) !important;
+  cursor:pointer !important;
+  box-sizing:border-box !important;
+  overflow:visible !important;
+}
+.mobile-wishlist-option span{
+  display:block !important;
+  width:24px !important;
+  height:24px !important;
+  font-family:Arial,sans-serif !important;
+  font-size:25px !important;
+  font-weight:400 !important;
+  line-height:24px !important;
+  text-align:center !important;
+  color:var(--cream) !important;
+  overflow:visible !important;
+}
+@media(max-width:700px){
+  #simpleOverlay > .simple-page-product-nav #utilityWishlist{display:none !important;}
+  #simpleOverlay > .simple-page-product-nav .mobile-wishlist-option{display:flex !important;}
+  #simpleOverlay > .simple-page-product-nav .product-nav-actions{gap:2px !important;}
+  #simpleOverlay > .simple-page-product-nav .mobile-wishlist-option{transform:translateX(2px) !important;}
+  #simpleOverlay > .simple-page-product-nav #utilityBag{width:30px !important;height:30px !important;}
+}
+</style>
 
 <style id="final-wishlist-bag-match-exact">
 /* EXACT ICON FOOTPRINT: wishlist is the same 14x16 body size as the bag. */
