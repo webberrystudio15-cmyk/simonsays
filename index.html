@@ -11999,6 +11999,19 @@ showMoreDetails?.addEventListener("click", () => {
 })();
 </script>
 
+<script id="MOBILE-HISTORY-START-FIX">
+(() => {
+  // Keep an in-site Home history entry so mobile/browser Back returns to the site instead of leaving it.
+  function ensureHomeHistory(){
+    if(!location.hash){
+      history.replaceState({section:'home'}, '', '#home');
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureHomeHistory, {once:true});
+  else ensureHomeHistory();
+})();
+</script>
+
 <script id="ROUTE-RESTORE-ON-LOAD">
 (() => {
   function restoreRoute(){
