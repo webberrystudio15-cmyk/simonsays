@@ -11810,8 +11810,26 @@ showMoreDetails?.addEventListener("click", () => {
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("open"))closeOverlay(false);});
   window.addEventListener('popstate',e=>{
     handlingHistory=true;
-    if(e.state && e.state.simplePage){ openOverlay(e.state.simplePage,false); }
-    else closeOverlay(true);
+    window.__handlingSimonHistory=true;
+    const about=document.getElementById('aboutPage');
+    const hash=(location.hash||'').replace('#','');
+    if(e.state && e.state.simplePage){
+      openOverlay(e.state.simplePage,false);
+    }else if(e.state && e.state.aboutPage){
+      if(typeof window.openSimonAboutPage==='function') window.openSimonAboutPage(null,false);
+    }else{
+      if(overlay.classList.contains('open')) closeOverlay(true);
+      if(about && about.classList.contains('open')){
+        about.classList.remove('open');
+        about.setAttribute('aria-hidden','true');
+      }
+      document.body.style.overflow='';
+      if(hash==='home' || hash==='collection'){
+        const target=document.getElementById(hash);
+        if(target) target.scrollIntoView({behavior:'auto',block:'start'});
+      }
+    }
+    window.__handlingSimonHistory=false;
     handlingHistory=false;
   });
   let touchStartX=0,touchStartY=0;
@@ -11927,7 +11945,7 @@ showMoreDetails?.addEventListener("click", () => {
         if(trigger) trigger.setAttribute("aria-expanded","false");
     };
 
-    const openAbout = (event) => {
+    const openAbout = (event, pushHistory = true) => {
         event?.preventDefault();
         closeMenuIfOpen();
 
@@ -11936,12 +11954,14 @@ showMoreDetails?.addEventListener("click", () => {
         aboutPage.setAttribute("aria-hidden","false");
         document.body.style.overflow = "hidden";
         aboutPage.scrollTop = 0;
+        if(pushHistory && !window.__handlingSimonHistory) history.pushState({aboutPage:true},'','#about');
     };
 
-    const closeAbout = () => {
+    const closeAbout = (fromHistory = false) => {
         aboutPage.classList.remove("open");
         aboutPage.setAttribute("aria-hidden","true");
         document.body.style.overflow = "";
+        if(!fromHistory && history.state && history.state.aboutPage) history.back();
     };
 
     aboutLinks.forEach(link => link.addEventListener("click", (event) => {
@@ -11976,6 +11996,33 @@ showMoreDetails?.addEventListener("click", () => {
             closeAbout();
         }
     });
+})();
+</script>
+
+<script id="ROUTE-RESTORE-ON-LOAD">
+(() => {
+  function restoreRoute(){
+    const hash=(location.hash||'').replace('#','');
+    if(!hash) return;
+    const about=document.getElementById('aboutPage');
+    const overlay=document.getElementById('simpleOverlay');
+    if(['reviews','contact','faq','login','ordering','delivery','allergens','privacy'].includes(hash) && typeof window.openSimonUtilityPage==='function'){
+      window.openSimonUtilityPage(hash,false);
+      history.replaceState({simplePage:hash},'', '#'+hash);
+      return;
+    }
+    if(hash==='about' && typeof window.openSimonAboutPage==='function'){
+      window.openSimonAboutPage(null,false);
+      history.replaceState({aboutPage:true},'', '#about');
+      return;
+    }
+    if(hash==='home' || hash==='collection'){
+      const target=document.getElementById(hash);
+      if(target) requestAnimationFrame(()=>target.scrollIntoView({behavior:'auto',block:'start'}));
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',restoreRoute,{once:true});
+  else restoreRoute();
 })();
 </script>
 
@@ -12699,8 +12746,7 @@ showMoreDetails?.addEventListener("click", () => {
 @media(max-width:700px){
   #simpleOverlay > .simple-page-product-nav #utilityWishlist{display:none !important;}
   #simpleOverlay > .simple-page-product-nav .mobile-wishlist-option{display:flex !important;}
-  #simpleOverlay > .simple-page-product-nav .product-nav-actions{gap:2px !important;}
-  #simpleOverlay > .simple-page-product-nav .mobile-wishlist-option{transform:translateX(2px) !important;}
+  #simpleOverlay > .simple-page-product-nav .product-nav-actions{gap:4px !important;}
   #simpleOverlay > .simple-page-product-nav #utilityBag{width:30px !important;height:30px !important;}
 }
 </style>
@@ -13664,7 +13710,7 @@ showMoreDetails?.addEventListener("click", () => {
     requestAnimationFrame(()=>{
       requestAnimationFrame(()=>{
         target.scrollIntoView({behavior:'smooth',block:'start'});
-        history.replaceState(null,'','#'+id);
+        if(location.hash !== '#'+id) history.pushState({section:id},'', '#'+id);
       });
     });
   }
